@@ -8,9 +8,6 @@ using WpfApp.DAL.Interfaces;
 
 namespace WpfApp.DAL.Repositories
 {
-    /// <summary>
-    /// TODO
-    /// </summary>
     public class CalendarRepository : IRepository<Calendar>
     {
         private readonly CalendarykContext _db;

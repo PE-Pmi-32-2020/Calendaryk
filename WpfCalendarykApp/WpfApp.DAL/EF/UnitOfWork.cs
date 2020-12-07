@@ -5,11 +5,13 @@ using WpfApp.DAL.Repositories;
 
 namespace WpfApp.DAL.EF
 {
-    public class UnitOfWork: IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private CalendarykContext _db;
         private CalendarRepository _calendarRepository;
         private EventRepository _eventRepository;
+        private RoleRepository _roleRepository;
+        private UserRepository _userRepository;
 
         public UnitOfWork(CalendarykContext db)
         {
@@ -18,6 +20,9 @@ namespace WpfApp.DAL.EF
 
         public IRepository<Calendar> Calendars => _calendarRepository ??= new CalendarRepository(_db);
         public IRepository<Event> Events => _eventRepository ??= new EventRepository(_db);
+        public IRepository<ApplicationRole> Roles => _roleRepository ??= new RoleRepository(_db);
+        public IRepository<ApplicationUser> Users => _userRepository ??= new UserRepository(_db);
+
         public void Save()
         {
             _db.SaveChanges();

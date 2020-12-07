@@ -1,39 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using WpfApp.DAL.EF;
-using WpfApp.DAL.Interfaces;
+﻿using System.Windows;
+using System.Windows.Media.Animation;
+using Castle.Core.Internal;
+using WpfApp.BLL.Interfaces;
+using WpfApp.PL.ViewModel;
 
 namespace WpfApp
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly IUnitOfWork _db;
-        public MainWindow(IUnitOfWork unitOfWork)
+        private readonly IAuthorization _authorization;
+        private readonly AuthorizationView _model = new AuthorizationView();
+
+        public MainWindow(IAuthorization authorization)
         {
-            _db = unitOfWork;
+            _authorization = authorization;
+            DataContext = _model;
             InitializeComponent();
-            GetCalendars();
         }
 
-        private void GetCalendars()
+        private void OpenWindow(Window window)
         {
-            var calendars = _db.Calendars.GetAll();
-            CalendarykDB.ItemsSource = calendars;
+            window.Show();
+            Close();
+        }
+
+        private void ButtonLogIn_Click(object sender, RoutedEventArgs e)
+        {
+            var emailValidation = _model["Email"];
+
+            if (!emailValidation.IsNullOrEmpty())
+            {
+                MessageBox.Show(emailValidation, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (Password.Password.IsNullOrEmpty())
+            {
+                MessageBox.Show("Password is empty!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var result = _authorization.LogIn(Email.Text, Password.Password);
+            if (result == null)
+            {
+                MessageBox.Show("User with such email is not exist", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (result.Role.Equals("user"))
+            {
+               OpenWindow(new UserWindow(result));
+               return;
+            }
+
+            if (result.Role.Equals("admin"))
+            {
+                OpenWindow(new AdminWindow(result));
+                return;
+            }
+        }
+
+        private void ButtonRegister_Click(object sender, RoutedEventArgs e)
+        {
+            RegisterWindow window = new RegisterWindow(_authorization);
+            Close();
+            window.Show();
         }
     }
 }

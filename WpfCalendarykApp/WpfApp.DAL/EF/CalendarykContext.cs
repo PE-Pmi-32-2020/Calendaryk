@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.VisualBasic;
 using WpfApp.DAL.Entities;
 
@@ -11,12 +12,19 @@ namespace WpfApp.DAL.EF
     {
         public DbSet<Calendar> Calendars { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<ApplicationRole> Roles { get; set; }
+
+        public CalendarykContext()
+        {
+        }
 
         /// <summary>
         /// Create database if it doesn't exist.
         /// </summary>
         public CalendarykContext(DbContextOptions<CalendarykContext> options) : base(options)
         {
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
@@ -26,7 +34,7 @@ namespace WpfApp.DAL.EF
         /// <param name="optionsBuilder">Service for configuration</param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=Calendaryk;Trusted_Connection=True;");
+            optionsBuilder.UseLazyLoadingProxies().UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=Calendaryk;Trusted_Connection=True;");
         }
 
         /// <summary>
@@ -35,12 +43,12 @@ namespace WpfApp.DAL.EF
         /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            List<Calendar> calendars = new List<Calendar>
+            var calendars = new List<Calendar>
             {
                 new Calendar {Id = 1, Title = "Holidays"}
             };
 
-            List<Event> events = new List<Event>()
+            var events = new List<Event>
             {
                 new Event
                 {
@@ -61,9 +69,22 @@ namespace WpfApp.DAL.EF
                 }
             };
 
-            modelBuilder.Entity<Calendar>().HasMany(value => value.Event).WithOne(value => value.Calendar);
+            var roles = new List<ApplicationRole>
+            {
+                new ApplicationRole {Id = 1, Type = "user"},
+                new ApplicationRole {Id = 2, Type = "admin"}
+            };
+
+            var users = new List<ApplicationUser>
+            {
+                new ApplicationUser {Id = 1, Email = "user@lnu.edu.ua", Password = "user", RoleId = 1},
+                new ApplicationUser {Id = 2, Email = "admin@lnu.edu.ua", Password = "admin", RoleId = 2}
+            };
+
             modelBuilder.Entity<Calendar>().HasData(calendars);
             modelBuilder.Entity<Event>().HasData(events);
+            modelBuilder.Entity<ApplicationUser>().HasData(users);
+            modelBuilder.Entity<ApplicationRole>().HasData(roles);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace WpfApp.DAL.Entities
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public ICollection<Event> Event { get; set; }
+        public virtual ICollection<Event> Event { get; set; }
         public Calendar()
         {
             Event = new List<Event>();

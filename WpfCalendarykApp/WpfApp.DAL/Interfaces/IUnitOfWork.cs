@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using WpfApp.DAL.Entities;
 
 namespace WpfApp.DAL.Interfaces
@@ -9,6 +7,9 @@ namespace WpfApp.DAL.Interfaces
     {
         IRepository<Calendar> Calendars { get; }
         IRepository<Event> Events { get; }
+        IRepository<ApplicationRole> Roles { get; }
+        IRepository<ApplicationUser> Users { get; }
+
         void Save();
     }
 }
